@@ -1,250 +1,77 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Aku Yuda Sudah Kembali</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love Photo Music</title>
 <style>
-  :root {
-    --bg: #000;
-    --pink: #ff5fa2;
-    --txt-size: 20px;
-    --heart-size: min(60vmin, 360px);
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--bg); color: #fff;
-    height: 100svh; overflow: hidden; font-family: system-ui, Arial, sans-serif;
-  }
-  /* Panggung */
-  .stage { position: relative; width: 100%; height: 100%; }
+body {
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  flex-direction: column;
+  color: white;
+  font-family: Arial, sans-serif;
+}
 
-  /* SVG foto love di tengah */
-  .heart-photo-wrap {
-    position: absolute; inset: 50% auto auto 50%;
-    transform: translate(-50%, -50%);
-    width: var(--heart-size); height: calc(var(--heart-size)*0.9);
-    z-index: 10; cursor: pointer;
-  }
-  /* Glow berdenyut saat musik main */
-  .glow-path {
-    opacity: 0; transition: opacity .25s ease;
-  }
-  .playing .glow-path {
-    opacity: .9;
-    animation: pulse 2.6s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%,100% { filter: blur(10px); opacity: .7; }
-    50%     { filter: blur(16px); opacity: 1; }
-  }
+/* Bentuk love pakai CSS clip-path */
+.love-photo {
+  width: 300px;
+  height: 300px;
+  background-color: pink; /* warna default kalau foto gagal load */
+  background-image: url('https://i.postimg.cc/qMKp8XG3/sample-love.jpg'); /* Ganti link foto di sini */
+  background-size: cover;
+  background-position: center;
+  clip-path: path("M150 270 C-40 120, 70 -50, 150 60 C230 -50, 340 120, 150 270 Z");
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+  cursor: pointer;
+}
 
-  /* Huruf-huruf pada jalur love */
-  .love-char {
-    position: absolute; font-size: var(--txt-size); font-weight: 700;
-    background: linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet, red);
-    background-size: 400%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: gradientMove 5s linear infinite;
-    pointer-events: none; white-space: pre;
-    text-shadow: 0 0 12px rgba(255, 255, 255, .08);
-  }
-  @keyframes gradientMove { from {background-position:0%} to {background-position:100%} }
+/* Efek zoom + glow saat musik main */
+.playing {
+  animation: zoomPulse 3s infinite ease-in-out;
+  box-shadow: 0 0 30px pink;
+}
 
-  /* Bintang kelap-kelip */
-  .star {
-    position: absolute; background:#fff; border-radius:50%; opacity:.8;
-  }
+@keyframes zoomPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
 
-  /* Partikel hati terbang */
-  .heart {
-    position: absolute; font-size: 18px; animation: floatUp 4s linear infinite;
-  }
-  @keyframes floatUp {
-    0% { transform: translateY(0) scale(1); opacity: 1; }
-    100% { transform: translateY(-220px) scale(0.5); opacity: 0; }
-  }
-
-  /* Bantuan touch */
-  .hint {
-    position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%);
-    font-size: 14px; color: #ddd; opacity: .7; z-index: 20;
-  }
+h1 {
+  margin-top: 20px;
+  font-size: 1.5rem;
+  text-align: center;
+}
 </style>
 </head>
 <body>
-<div class="stage">
 
-  <!-- ===== GANTI LINK FOTO DI SINI ===== -->
-  <!-- Tips: pakai link catbox.moe atau file di repo GitHub Pages -->
-  <svg class="https://i.postimg.cc/d00CK5nP/Whats-App-Image-2025-08-14-at-22-07-17.jpg" viewBox="0 0 400 360" id="heartSvg" aria-label="Klik untuk Play/Pause musik">
-    <defs>
-      <!-- Bentuk LOVE untuk clipPath -->
-      <clipPath id="heartClip" clipPathUnits="objectBoundingBox">
-        <!-- Kita pakai viewBox normal; di bawah ada path asli untuk glow dan clip fallback -->
-      </clipPath>
+<div class="love-photo" id="lovePhoto"></div>
+<h1>💖 Klik fotonya ka 💖</h1>
 
-      <!-- Filter glow (backup, jarang dipakai di sini) -->
-      <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur"/>
-        <feMerge>
-          <feMergeNode in="blur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </defs>
-
-    <!-- Path love (untuk clip & glow) -->
-    <path id="heartPath"
-          d="M200,330
-             C280,290 340,220 340,160
-             C340,110 300,80 260,80
-             C230,80 210,95 200,115
-             C190,95 170,80 140,80
-             C100,80 60,110 60,160
-             C60,220 120,290 200,330 Z"
-          fill="none" stroke="transparent" stroke-width="1" />
-
-    <!-- Glow mengikuti tepi LOVE -->
-    <use href="#heartPath" class="glow-path" stroke="var(--pink)" stroke-width="18" fill="none" />
-    <use href="#heartPath" class="glow-path" stroke="var(--pink)" stroke-width="8" fill="none" />
-
-    <!-- Foto dipotong bentuk LOVE -->
-    <clipPath id="clipReal">
-      <use href="#heartPath" />
-    </clipPath>
-    <image id="heartImage"
-           href="https://files.catbox.moe/contoh.jpg"  <!-- GANTI ke link foto -->
-           x="0" y="0" width="400" height="360"
-           preserveAspectRatio="xMidYMid slice"
-           clip-path="url(#clipReal)"></image>
-
-    <!-- Garis tipis love (halus) -->
-    <use href="#heartPath" stroke="white" stroke-opacity=".18" stroke-width="2" fill="none" />
-  </svg>
-
-  <div class="hint">Klik foto untuk Play/Pause musik 🎵</div>
-</div>
-
-<!-- ====== GANTI LINK MP3 DI SINI ====== -->
-<audio id="bgm" preload="auto">
-  <source src="https://files.catbox.moe/contoh.mp3" type="audio/mpeg" /> <!-- GANTI ke link MP3 -->
-</audio>
+<audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-sunny.mp3"></audio> <!-- Ganti link MP3 di sini -->
 
 <script>
-/* ---------- TEKS BERPUTAR MENGIKUTI LOVE ---------- */
-const text = "💖 Aku Yuda Sudah Kembali 💖 ";
-const chars = text.repeat(12).split("");
-const charEls = [];
+const lovePhoto = document.getElementById('lovePhoto');
+const bgMusic = document.getElementById('bgMusic');
+let isPlaying = false;
 
-chars.forEach(ch => {
-  const span = document.createElement("span");
-  span.textContent = ch;
-  span.className = "love-char";
-  document.body.appendChild(span);
-  charEls.push(span);
-});
-
-// Rumus love (parametrik) untuk posisi huruf, disesuaikan skala layar
-function getLoveXY(t, scale) {
-  const x = 16 * Math.sin(t) ** 3;
-  const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-  return [x * scale, y * scale];
-}
-
-let offset = 0;
-function animateLove() {
-  const centerX = window.innerWidth / 2;
-  const centerY = window.innerHeight / 2;
-  // Sesuaikan ukuran love huruf terhadap viewport
-  const base = Math.min(window.innerWidth, window.innerHeight);
-  const scale = Math.max(12, base / 40); // skala dinamis
-
-  const total = charEls.length;
-  for (let i = 0; i < total; i++) {
-    const t = ((i / total) * Math.PI * 2 + offset) % (Math.PI * 2);
-    const [lx, ly] = getLoveXY(t, scale);
-    charEls[i].style.left = (centerX + lx) + "px";
-    charEls[i].style.top  = (centerY + ly) + "px";
+lovePhoto.addEventListener('click', () => {
+  if (isPlaying) {
+    bgMusic.pause();
+    lovePhoto.classList.remove('playing');
+  } else {
+    bgMusic.play();
+    lovePhoto.classList.add('playing');
   }
-  offset += 0.0048; // kecepatan putar
-  requestAnimationFrame(animateLove);
-}
-animateLove();
-
-window.addEventListener("resize", () => {
-  // biar huruf rapih saat orientasi ganti
-  charEls.forEach(el => { el.style.left = "0px"; el.style.top = "0px"; });
+  isPlaying = !isPlaying;
 });
-
-/* ---------- BINTANG KELAP-KELIP ---------- */
-for (let i = 0; i < 60; i++) {
-  const star = document.createElement("div");
-  star.className = "star";
-  const size = Math.random() * 2 + 1;
-  star.style.width = size + "px";
-  star.style.height = size + "px";
-  star.style.top = Math.random() * window.innerHeight + "px";
-  star.style.left = Math.random() * window.innerWidth + "px";
-  star.style.opacity = Math.random();
-  document.body.appendChild(star);
-  setInterval(() => { star.style.opacity = Math.random(); }, 500 + Math.random()*1200);
-}
-
-/* ---------- PARTIKEL HATI WARNA-WARNI ---------- */
-const heartColors = ["💖","💗","💓","💞","💕","💜","💙"];
-function createHeart() {
-  const heart = document.createElement("div");
-  heart.className = "heart";
-  heart.textContent = heartColors[Math.floor(Math.random()*heartColors.length)];
-  heart.style.left = Math.random() * window.innerWidth + "px";
-  heart.style.top = (window.innerHeight + 20) + "px";
-  document.body.appendChild(heart);
-  setTimeout(() => heart.remove(), 4200);
-}
-setInterval(createHeart, 520);
-
-/* ---------- KLIK FOTO = PLAY/PAUSE MUSIK + GLOW ---------- */
-const svg = document.getElementById("heartSvg");
-const audio = document.getElementById("bgm");
-
-async function toggleAudio() {
-  try {
-    if (audio.paused) {
-      audio.volume = 0.5; // volume awal
-      await audio.play();
-      svg.classList.add("playing");
-    } else {
-      audio.pause();
-      svg.classList.remove("playing");
-    }
-  } catch (e) {
-    // beberapa browser butuh interaksi user; klik ulang jika gagal
-    console.log("Play gagal: ", e);
-  }
-}
-
-svg.addEventListener("click", toggleAudio);
-// dukung keyboard/aksesibilitas
-svg.setAttribute("tabindex", "0");
-svg.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleAudio(); }
-});
-
-/* ---------- BONUS: zoom lembut pada foto (cinematic) ---------- */
-(function addZoomAnimation(){
-  // skala lembut dengan CSS transform via SMIL fallback JS
-  let dir = 1, s = 1, raf;
-  function step(){
-    s += 0.0009 * dir;
-    if (s > 1.12) dir = -1;
-    if (s < 0.98) dir = 1;
-    svg.style.transform = translate(-50%, -50%) scale(${s});
-    raf = requestAnimationFrame(step);
-  }
-  step();
-})();
 </script>
+
 </body>
 </html>
