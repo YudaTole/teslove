@@ -11,9 +11,7 @@
         overflow: hidden;
         height: 100%;
         width: 100%;
-    }
-    body {
-        background: #000;
+        background: black;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -27,20 +25,12 @@
         background-position: center;
         z-index: -2;
     }
-    .heart {
+    svg {
         width: 250px;
         height: 250px;
-        background-size: cover;
-        background-position: center;
-        clip-path: path("M 50 15 C 35 -10, 0 -10, 0 25 C 0 55, 25 75, 50 95 C 75 75, 100 55, 100 25 C 100 -10, 65 -10, 50 15 Z");
-        transform: scale(1);
-        transition: transform 0.5s ease, filter 0.5s ease;
         position: relative;
         z-index: 2;
-    }
-    .heart.active {
-        transform: scale(1.1);
-        filter: drop-shadow(0 0 20px #ff4d6d);
+        cursor: pointer;
     }
     .circle-text {
         position: absolute;
@@ -58,18 +48,11 @@
         font-weight: bold;
         color: white;
         letter-spacing: 3px;
+        text-shadow: 0 0 5px black;
     }
     @keyframes rotateText {
         from { transform: translate(-50%, -50%) rotate(0deg); }
         to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    .sparkle {
-        position: absolute;
-        width: 6px;
-        height: 6px;
-        background: white;
-        border-radius: 50%;
-        filter: drop-shadow(0 0 4px white);
     }
     canvas {
         position: fixed;
@@ -84,26 +67,34 @@
 
 <div id="background"></div>
 <div class="circle-text" id="circleText"></div>
-<div class="heart" id="heart"></div>
-<canvas id="particles"></canvas>
 
+<svg id="heartSvg" viewBox="0 0 100 100">
+  <defs>
+    <pattern id="heartImage" patternUnits="userSpaceOnUse" width="100" height="100">
+      <image id="heartImgTag" href="" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" />
+    </pattern>
+  </defs>
+  <path d="M50 15 C35 -10, 0 -10, 0 25 C0 55, 25 75, 50 95 C75 75, 100 55, 100 25 C100 -10, 65 -10, 50 15 Z" 
+        fill="url(#heartImage)" stroke="#ff4d6d" stroke-width="2"/>
+</svg>
+
+<canvas id="particles"></canvas>
 <audio id="music" loop></audio>
 
 <script>
 /* ====== GANTI LINK DI SINI ====== */
-const backgroundURL = "https://example.com/background.jpg"; // Ganti link background
-const photoURL = "https://example.com/photo.jpg"; // Ganti link foto heart
-const musicURL = "https://example.com/music.mp3"; // Ganti link musik
+const backgroundURL = "https://i.postimg.cc/tTm8FcCh/bg.jpg"; // background
+const photoURL = "https://i.postimg.cc/vBDPRL9f/heart.jpg"; // foto di love
+const musicURL = "https://files.catbox.moe/abcd12.mp3"; // musik
 /* ================================= */
 
 document.getElementById("background").style.backgroundImage = url(${backgroundURL});
-const heart = document.getElementById("heart");
-heart.style.backgroundImage = url(${photoURL});
+document.getElementById("heartImgTag").setAttribute("href", photoURL);
 
 const music = document.getElementById("music");
 music.src = musicURL;
 
-/* ====== TEKS MELINGKAR ====== */
+/* TEKS MELINGKAR */
 const text = "Aku Yuda Sudah Kembali • ";
 const circleText = document.getElementById("circleText");
 for (let i = 0; i < text.length; i++) {
@@ -113,16 +104,7 @@ for (let i = 0; i < text.length; i++) {
     circleText.appendChild(span);
 }
 
-/* ====== SPARKLE MUTER ====== */
-let sparkles = [];
-for (let i = 0; i < 20; i++) {
-    let s = document.createElement("div");
-    s.className = "sparkle";
-    document.body.appendChild(s);
-    sparkles.push(s);
-}
-
-/* ====== PARTIKEL HATI ====== */
+/* PARTIKEL HATI */
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
@@ -167,26 +149,10 @@ function animateParticles() {
     requestAnimationFrame(animateParticles);
 }
 
-/* ====== ANIMASI SPARKLE ====== */
-let angle = 0;
-function animateSparkles() {
-    if (isActive) angle += 0.02;
-    sparkles.forEach((s, i) => {
-        const radius = 180;
-        const sparkAngle = angle + (i * (Math.PI * 2 / sparkles.length));
-        const x = window.innerWidth / 2 + Math.cos(sparkAngle) * radius;
-        const y = window.innerHeight / 2 + Math.sin(sparkAngle) * radius;
-        s.style.left = ${x}px;
-        s.style.top = ${y}px;
-    });
-    requestAnimationFrame(animateSparkles);
-}
-
-/* ====== CLICK ACTION ====== */
+/* CLICK ACTION */
 let isActive = false;
-heart.addEventListener("click", () => {
+document.getElementById("heartSvg").addEventListener("click", () => {
     isActive = !isActive;
-    heart.classList.toggle("active", isActive);
     if (isActive) {
         music.play();
     } else {
@@ -194,10 +160,9 @@ heart.addEventListener("click", () => {
     }
 });
 
-/* START ANIMASI */
+/* START */
 animateParticles();
-animateSparkles();
-
 </script>
+
 </body>
 </html>
