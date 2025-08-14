@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aku Yuda Sudah Kembali</title>
+<style>
+  body {
+    margin: 0;
+    background: black;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* Foto di tengah */
+  .center-photo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 5px solid white;
+    object-fit: cover;
+    z-index: 10;
+  }
+
+  /* Teks */
+  .love-text {
+    position: absolute;
+    font-size: 22px;
+    font-weight: bold;
+    color: pink;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  /* Bintang kelap-kelip */
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+  }
+
+  /* Partikel hati */
+  .heart {
+    position: absolute;
+    font-size: 18px;
+    animation: floatUp 4s linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-200px) scale(0.5); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Ganti link foto di sini -->
+<img class="center-photo" src="https://files.catbox.moe/contoh.jpg" alt="Foto Yuda">
+
+<div class="love-text">💖 Aku Yuda Sudah Kembali 💖</div>
+
+<script>
+const textEl = document.querySelector(".love-text");
+let angle = 0;
+
+// Rumus bentuk love
+function getLoveXY(t, scale) {
+  const x = 16 * Math.sin(t) ** 3;
+  const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+  return [x * scale, y * scale];
+}
+
+function animateLove() {
+  angle += 0.02; // kecepatan putar
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
+  const [lx, ly] = getLoveXY(angle, 15);
+  textEl.style.left = centerX + lx + "px";
+  textEl.style.top = centerY + ly + "px";
+  requestAnimationFrame(animateLove);
+}
+animateLove();
+
+// Bintang kelap-kelip
+for (let i = 0; i < 50; i++) {
+  const star = document.createElement("div");
+  star.className = "star";
+  const size = Math.random() * 2 + 1;
+  star.style.width = size + "px";
+  star.style.height = size + "px";
+  star.style.top = Math.random() * window.innerHeight + "px";
+  star.style.left = Math.random() * window.innerWidth + "px";
+  star.style.opacity = Math.random();
+  document.body.appendChild(star);
+
+  setInterval(() => {
+    star.style.opacity = Math.random();
+  }, 500 + Math.random() * 1000);
+}
+
+// Partikel hati
+function createHeart() {
+  const heart = document.createElement("div");
+  heart.className = "heart";
+  heart.innerHTML = "💖";
+  heart.style.left = Math.random() * window.innerWidth + "px";
+  heart.style.top = window.innerHeight + "px";
+  document.body.appendChild(heart);
+  setTimeout(() => heart.remove(), 4000);
+}
+setInterval(createHeart, 500);
+</script>
+
+</body>
+</html>
