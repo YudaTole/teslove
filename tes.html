@@ -3,208 +3,106 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aku Yuda Sudah Kembali</title>
+<title>Love Music Animation</title>
 <style>
-    html, body {
+    body {
         margin: 0;
-        padding: 0;
-        overflow: hidden;
-        height: 100%;
-        width: 100%;
-        background: black;
+        background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb') no-repeat center/cover;
+        height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        flex-direction: column;
-    }
-    #background {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background-size: cover;
-        background-position: center;
-        z-index: -3;
-    }
-    svg {
-        width: 250px;
-        height: 250px;
-        position: relative;
-        z-index: 2;
-        cursor: pointer;
-    }
-    .circle-text {
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        width: 400px; height: 400px;
-        animation: rotateText 10s linear infinite;
-        pointer-events: none;
-        z-index: 1;
-    }
-    .circle-text span {
-        position: absolute;
-        transform-origin: 0 200px;
-        font-size: 20px;
-        font-weight: bold;
+        overflow: hidden;
+        font-family: sans-serif;
         color: white;
-        letter-spacing: 3px;
-        text-shadow: 0 0 5px black;
     }
-    @keyframes rotateText {
-        from { transform: translate(-50%, -50%) rotate(0deg); }
-        to { transform: translate(-50%, -50%) rotate(360deg); }
+
+    /* Love Shape as Image Mask */
+    .heart-photo {
+        width: 300px;
+        height: 300px;
+        background: url('https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e') no-repeat center/cover;
+        -webkit-mask-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Vector_heart.svg/1024px-Vector_heart.svg.png');
+        -webkit-mask-size: cover;
+        -webkit-mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        cursor: pointer;
+        transition: transform 0.3s ease;
     }
-    canvas {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        z-index: -1;
+    .heart-photo:hover {
+        transform: scale(1.1);
+    }
+
+    /* Hidden text */
+    .text {
+        opacity: 0;
+        margin-top: 20px;
+        font-size: 24px;
+        text-align: center;
+        transition: opacity 1s ease;
+    }
+
+    .text.show {
+        opacity: 1;
+    }
+
+    /* Particle style */
+    .particle {
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        background: rgba(255,255,255,0.8);
+        border-radius: 50%;
         pointer-events: none;
+        animation: floatUp 3s linear infinite;
     }
-    #sparkles {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        z-index: -2;
-        pointer-events: none;
+
+    @keyframes floatUp {
+        0% { transform: translateY(0) scale(1); opacity: 1; }
+        100% { transform: translateY(-200px) scale(0.5); opacity: 0; }
     }
 </style>
 </head>
 <body>
 
-<div id="background"></div>
-<div class="circle-text" id="circleText"></div>
+<div>
+    <div class="heart-photo" id="heart"></div>
+    <div class="text" id="text">I Love You 💖</div>
+</div>
 
-<svg id="heartSvg" viewBox="0 0 100 100">
-  <defs>
-    <pattern id="heartImage" patternUnits="userSpaceOnUse" width="100" height="100">
-      <image id="heartImgTag" href="" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" />
-    </pattern>
-  </defs>
-  <path d="M50 15 C35 -10, 0 -10, 0 25 C0 55, 25 75, 50 95 C75 75, 100 55, 100 25 C100 -10, 65 -10, 50 15 Z" 
-        fill="url(#heartImage)" stroke="#ff4d6d" stroke-width="2"/>
-</svg>
-
-<canvas id="particles"></canvas>
-<canvas id="sparkles"></canvas>
-<audio id="music" loop></audio>
+<audio id="music" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
 
 <script>
-/* ====== GANTI LINK DI SINI ====== */
-const backgroundURL = "https://i.postimg.cc/tTm8FcCh/bg.jpg"; // background
-const photoURL = "https://i.postimg.cc/vBDPRL9f/heart.jpg"; // foto di love
-const musicURL = "https://files.catbox.moe/abcd12.mp3"; // musik
-/* ================================= */
+    const heart = document.getElementById('heart');
+    const text = document.getElementById('text');
+    const music = document.getElementById('music');
+    let playing = false;
+    let particleInterval;
 
-document.getElementById("background").style.backgroundImage = url(${backgroundURL});
-document.getElementById("heartImgTag").setAttribute("href", photoURL);
+    function createParticle() {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * window.innerWidth + 'px';
+        particle.style.top = window.innerHeight + 'px';
+        particle.style.animationDuration = (2 + Math.random() * 2) + 's';
+        document.body.appendChild(particle);
 
-const music = document.getElementById("music");
-music.src = musicURL;
-
-/* TEKS MELINGKAR */
-const text = "Aku Yuda Sudah Kembali • ";
-const circleText = document.getElementById("circleText");
-for (let i = 0; i < text.length; i++) {
-    let span = document.createElement("span");
-    span.innerText = text[i];
-    span.style.transform = rotate(${(360 / text.length) * i}deg);
-    circleText.appendChild(span);
-}
-
-/* PARTIKEL HATI */
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-let particles = [];
-
-function drawHeartShape(ctx, x, y, size) {
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.bezierCurveTo(x, y - size / 2, x - size, y - size / 2, x - size, y);
-    ctx.bezierCurveTo(x - size, y + size / 2, x, y + size, x, y + size * 1.5);
-    ctx.bezierCurveTo(x, y + size, x + size, y + size / 2, x + size, y);
-    ctx.bezierCurveTo(x + size, y - size / 2, x, y - size / 2, x, y);
-    ctx.fill();
-}
-
-function createParticle() {
-    return {
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2,
-        size: Math.random() * 6 + 2,
-        speedX: (Math.random() - 0.5) * 1,
-        speedY: (Math.random() - 1.5) * 2,
-        color: hsl(${Math.random() * 360}, 80%, 60%),
-        life: 100
-    };
-}
-
-function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach((p, index) => {
-        p.x += p.speedX;
-        p.y += p.speedY;
-        p.life--;
-        ctx.fillStyle = p.color;
-        drawHeartShape(ctx, p.x, p.y, p.size);
-        if (p.life <= 0) particles.splice(index, 1);
-    });
-    if (isActive) {
-        for (let i = 0; i < 3; i++) particles.push(createParticle());
+        setTimeout(() => particle.remove(), 4000);
     }
-    requestAnimationFrame(animateParticles);
-}
 
-/* SPARKLES MUTER */
-const sparkCanvas = document.getElementById("sparkles");
-const sctx = sparkCanvas.getContext("2d");
-sparkCanvas.width = window.innerWidth;
-sparkCanvas.height = window.innerHeight;
-let sparkles = [];
-
-function createSparkle() {
-    return {
-        angle: Math.random() * 360,
-        radius: 180,
-        size: Math.random() * 3 + 1,
-        speed: 0.02 + Math.random() * 0.02,
-        color: "white",
-        opacity: 0.8
-    };
-}
-
-function animateSparkles() {
-    sctx.clearRect(0, 0, sparkCanvas.width, sparkCanvas.height);
-    sparkles.forEach(s => {
-        s.angle += s.speed;
-        let x = window.innerWidth / 2 + Math.cos(s.angle) * s.radius;
-        let y = window.innerHeight / 2 + Math.sin(s.angle) * s.radius;
-        sctx.globalAlpha = s.opacity;
-        sctx.fillStyle = s.color;
-        sctx.beginPath();
-        sctx.arc(x, y, s.size, 0, Math.PI * 2);
-        sctx.fill();
+    heart.addEventListener('click', () => {
+        if (!playing) {
+            music.play();
+            text.classList.add('show');
+            particleInterval = setInterval(createParticle, 100);
+            playing = true;
+        } else {
+            music.pause();
+            text.classList.remove('show');
+            clearInterval(particleInterval);
+            playing = false;
+        }
     });
-    if (sparkles.length < 40) sparkles.push(createSparkle());
-    requestAnimationFrame(animateSparkles);
-}
-
-/* CLICK ACTION */
-let isActive = false;
-document.getElementById("heartSvg").addEventListener("click", () => {
-    isActive = !isActive;
-    if (isActive) {
-        music.play();
-    } else {
-        music.pause();
-    }
-});
-
-/* START */
-animateParticles();
-animateSparkles();
 </script>
 
 </body>
