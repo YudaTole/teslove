@@ -15,13 +15,14 @@
         overflow: hidden;
         font-family: sans-serif;
         color: white;
+        flex-direction: column;
     }
 
     /* Love Shape as Image Mask */
     .heart-photo {
         width: 300px;
         height: 300px;
-        background: url('https://i.postimg.cc/d00CK5nP/Whats-App-Image-2025-08-14-at-22-07-17.jpg') no-repeat center/cover;
+        background: url('https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e') no-repeat center/cover;
         -webkit-mask-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Vector_heart.svg/1024px-Vector_heart.svg.png');
         -webkit-mask-size: cover;
         -webkit-mask-repeat: no-repeat;
@@ -33,7 +34,7 @@
         transform: scale(1.1);
     }
 
-    /* Hidden text */
+    /* Text pesan utama */
     .text {
         opacity: 0;
         margin-top: 20px;
@@ -41,12 +42,23 @@
         text-align: center;
         transition: opacity 1s ease;
     }
-
     .text.show {
         opacity: 1;
     }
 
-    /* Particle style */
+    /* Tulisan klik */
+    .click-text {
+        margin-top: 15px;
+        font-size: 20px;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+    }
+    .click-text.hide {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* Particle */
     .particle {
         position: absolute;
         width: 5px;
@@ -65,10 +77,9 @@
 </head>
 <body>
 
-<div>
-    <div class="heart-photo" id="heart"></div>
-    <div class="text" id="text">I Love You 💖</div>
-</div>
+<div class="heart-photo" id="heart"></div>
+<div class="click-text" id="clickText">Klik di sini ❤️</div>
+<div class="text" id="text">Aku Yuda Sudah Kembali 💖</div>
 
 <audio id="music" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
 
@@ -76,6 +87,7 @@
     const heart = document.getElementById('heart');
     const text = document.getElementById('text');
     const music = document.getElementById('music');
+    const clickText = document.getElementById('clickText');
     let playing = false;
     let particleInterval;
 
@@ -86,12 +98,12 @@
         particle.style.top = window.innerHeight + 'px';
         particle.style.animationDuration = (2 + Math.random() * 2) + 's';
         document.body.appendChild(particle);
-
         setTimeout(() => particle.remove(), 4000);
     }
 
     heart.addEventListener('click', () => {
         if (!playing) {
+            clickText.classList.add('hide'); // Sembunyikan "Klik di sini"
             music.play();
             text.classList.add('show');
             particleInterval = setInterval(createParticle, 100);
@@ -101,6 +113,7 @@
             text.classList.remove('show');
             clearInterval(particleInterval);
             playing = false;
+            clickText.classList.remove('hide'); // Munculkan kembali jika di-pause
         }
     });
 </script>
